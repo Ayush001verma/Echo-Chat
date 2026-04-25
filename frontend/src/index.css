@@ -1,0 +1,208 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@property --border-angle {
+  inherits: false;
+  initial-value: 0deg;
+  syntax: '<angle>';
+}
+
+/* ───── Base Resets ───── */
+
+body {
+  font-family: 'Inter', sans-serif;
+  min-height: 100dvh;
+  background: #0a1628;
+  color: #e2e8f0;
+}
+
+#root {
+  min-height: 100dvh;
+}
+
+/* ───── Scrollbar ───── */
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(6, 182, 212, 0.2);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(6, 182, 212, 0.4);
+}
+
+/* ───── Glassmorphism Utilities ───── */
+
+.glass-panel {
+  background: rgba(15, 29, 50, 0.7);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(6, 182, 212, 0.08);
+}
+
+.glass-panel-strong {
+  background: rgba(15, 29, 50, 0.85);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(6, 182, 212, 0.12);
+}
+
+.glass-card {
+  background: rgba(22, 42, 70, 0.4);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(6, 182, 212, 0.06);
+}
+
+/* ───── Online Ring Indicator ───── */
+
+.online-ring {
+  position: relative;
+}
+
+.online-ring::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  border-radius: 9999px;
+  border: 2px solid #22c55e;
+  animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse-ring {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.05); }
+}
+
+/* ───── Typing Indicator ───── */
+
+.typing-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.typing-dots span {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #06b6d4;
+  animation: typing-dot 1.4s infinite ease-in-out both;
+}
+
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
+.typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+.typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes typing-dot {
+  0%, 80%, 100% { transform: scale(0.4); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
+/* ───── Message Bubbles ───── */
+
+.msg-bubble-own {
+  background: linear-gradient(135deg, rgba(6, 182, 212, 0.25) 0%, rgba(20, 184, 166, 0.3) 100%);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(6, 182, 212, 0.15);
+  border-radius: 18px 18px 4px 18px;
+}
+
+.msg-bubble-other {
+  background: rgba(22, 42, 70, 0.6);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  border: 1px solid rgba(100, 116, 139, 0.15);
+  border-radius: 18px 18px 18px 4px;
+}
+
+/* ───── Auth Form Inputs ───── */
+
+.input {
+  @apply w-full bg-navy-800 border border-navy-600/50 rounded-lg py-3 pl-10 pr-4 text-slate-200 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-cyan-500/40 focus:border-cyan-500/50 transition-all;
+}
+
+.auth-input-icon {
+  @apply absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 size-5 pointer-events-none;
+}
+
+.auth-input-label {
+  @apply block text-sm font-medium text-slate-400 mb-1.5;
+}
+
+.auth-badge {
+  @apply inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-cyan-500/10 text-cyan-400 ring-1 ring-inset ring-cyan-500/20;
+}
+
+.auth-btn {
+  @apply w-full btn btn-primary text-white font-bold tracking-wide;
+}
+
+.auth-link {
+  @apply link link-hover text-cyan-400 text-sm transition-colors hover:text-cyan-300;
+}
+
+/* ───── Tab Styles ───── */
+
+.chat-tab {
+  @apply flex flex-col items-center gap-1 px-4 py-2.5 rounded-lg transition-all duration-200 cursor-pointer text-xs font-medium;
+}
+
+.chat-tab-active {
+  @apply bg-cyan-500/15 text-cyan-400;
+  box-shadow: 0 2px 8px rgba(6, 182, 212, 0.1);
+}
+
+.chat-tab-inactive {
+  @apply text-slate-500 hover:text-slate-300 hover:bg-slate-800/50;
+}
+
+/* ───── Chat Item Hover ───── */
+
+.chat-item {
+  @apply flex items-center gap-3 p-3 rounded-xl transition-all duration-200 cursor-pointer;
+}
+
+.chat-item:hover {
+  background: rgba(6, 182, 212, 0.06);
+}
+
+.chat-item-active {
+  background: rgba(6, 182, 212, 0.1) !important;
+  border: 1px solid rgba(6, 182, 212, 0.15);
+}
+
+/* ───── Glow Effects ───── */
+
+.glow-cyan {
+  box-shadow: 0 0 20px rgba(6, 182, 212, 0.15), 0 0 40px rgba(6, 182, 212, 0.05);
+}
+
+.glow-cyan-sm {
+  box-shadow: 0 0 10px rgba(6, 182, 212, 0.1);
+}
+
+/* ───── Badge Styles ───── */
+
+.security-badge {
+  @apply inline-flex items-center gap-1.5 px-3 py-1 text-[11px] font-medium rounded-full;
+  background: rgba(16, 185, 129, 0.1);
+  color: #6ee7b7;
+  border: 1px solid rgba(16, 185, 129, 0.15);
+}
+
+.status-badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 text-[10px] font-medium rounded-full;
+}
