@@ -1,0 +1,8 @@
+
+> backend@1.0.0 dev
+> node --watch src/server.js
+
+✦Aj WARN Arcjet will use 127.0.0.1 when missing public IP address in development mode
+Server is listening on port 5001
+Redis Connected
+MDB connected ac-xtoddqx-shard-00-00.rrybb7h.mongodb.net
