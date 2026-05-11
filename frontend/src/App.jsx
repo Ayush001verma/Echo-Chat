@@ -25,7 +25,6 @@ function App() {
     }
   }, [authUser, subscribeToMessages, unsubscribeFromMessages]);
 
-  console.log({ authUser });
 
   if (isCheckingAuth) return <PageLoader />;
 

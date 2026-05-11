@@ -7,9 +7,18 @@ import {socketAuthMiddleware} from '../middleware/socketAuthMiddleware.js';
 const app = express();
 const server = http.createServer(app)
 
+// Build allowed origins — normalize CLIENT_URL by stripping trailing slash
+const socketAllowedOrigins = [
+    'http://localhost:5173',
+    'http://localhost:5174',
+];
+if (ENV.CLIENT_URL) {
+    socketAllowedOrigins.push(ENV.CLIENT_URL.replace(/\/+$/, ''));
+}
+
 const io = new Server(server,{
     cors : {
-        origin : [ENV.CLIENT_URL],
+        origin : socketAllowedOrigins,
         credentials : true,
     },
 
