@@ -57,7 +57,7 @@ Echo Chat is optimized for separate hosting (e.g., Vercel for Frontend and Rende
 2. Set the Build Command to `npm run build`.
 3. Set the Output Directory to `dist`.
 4. Configure the following environment variables:
-   - `VITE_BASE_URL`: The URL of your **Backend API** (e.g., `https://echo-api.onrender.com/api`).
+   - `VITE_API_URL`: The URL of your **Backend API** (e.g., `https://echo-api.onrender.com/api`).
    - `VITE_TURN_USERNAME`: (Optional) For WebRTC.
    - `VITE_TURN_CREDENTIAL`: (Optional) For WebRTC.
 
