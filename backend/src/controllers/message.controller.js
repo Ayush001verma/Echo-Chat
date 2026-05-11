@@ -56,6 +56,10 @@ export const getMessagesByUserId = async (req, res) => {
 
         // Identifies entity type for routing.
         const group = await Group.findById(chatPartnerId);
+
+        if (group && !group.members.some(memberId => memberId.toString() === myID.toString())) {
+            return res.status(403).json({ message: "Access denied. You are not a member of this group." });
+        }
         
         // --- REDIS LOGIC START ---
         // Determines caching prefix scheme.
@@ -118,6 +122,10 @@ export const sendMessage = async (req, res) => {
 
         // Detects collective entity configuration.
         const group = await Group.findById(chatPartnerId);
+
+        if (group && !group.members.some(memberId => memberId.toString() === senderId.toString())) {
+            return res.status(403).json({ message: "Access denied. You are not a member of this group." });
+        }
 
         let newMessage;
         let redisKey; // Tracks cache node for invalidation.

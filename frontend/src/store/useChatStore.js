@@ -2,12 +2,17 @@ import { create } from "zustand";
 import { axiosInstance } from "../lib/axios";
 import toast from "react-hot-toast";
 import { useAuthStore } from "./useAuthStore";
+import { callGeminiChat } from "../lib/gemini";
+
+const storedAiMessages = localStorage.getItem("echoAiMessages");
+const initialAiMessages = storedAiMessages ? JSON.parse(storedAiMessages) : [];
 
 export const useChatStore = create((set, get) => ({
     // Manages core chat and group collections.
     allContacts: [],
     chats: [],
     messages: [],
+    aiMessages: initialAiMessages,
     typingUsers: [],
     activeTab: 'chats',
     selectedUser: null,
@@ -64,6 +69,10 @@ export const useChatStore = create((set, get) => ({
 
 
     getMessagesByUserId: async (userId) => {
+        if (userId === "echo-ai") {
+            set({ messages: get().aiMessages, isMessagesLoading: false });
+            return;
+        }
         set({ isMessagesLoading: true })
         try {
             const res = await axiosInstance.get(`/messages/${userId}`)
@@ -93,6 +102,37 @@ export const useChatStore = create((set, get) => ({
 
         // Appends tentative message representation.
         set((state) => ({ messages: [...state.messages, optimisticMessage] }));
+
+        if (selectedUser._id === "echo-ai") {
+            const newAiMessages = [...get().aiMessages, optimisticMessage];
+            set({ aiMessages: newAiMessages });
+            localStorage.setItem("echoAiMessages", JSON.stringify(newAiMessages));
+
+            try {
+                const responseText = await callGeminiChat(newAiMessages);
+                const aiMessage = {
+                    _id: `ai-${Date.now()}`,
+                    senderId: "echo-ai",
+                    receiverId: authUser._id,
+                    text: responseText,
+                    createdAt: new Date().toISOString(),
+                };
+                
+                // Remove optimistic flag from user message and append AI message
+                const updatedAiMessages = newAiMessages.map(msg => msg._id === tempId ? { ...msg, isOptimistic: false } : msg);
+                updatedAiMessages.push(aiMessage);
+                
+                set({ 
+                    aiMessages: updatedAiMessages,
+                    messages: updatedAiMessages
+                });
+                localStorage.setItem("echoAiMessages", JSON.stringify(updatedAiMessages));
+            } catch (error) {
+                console.error("AI Chat Error:", error);
+                toast.error("Echo AI failed to respond.");
+            }
+            return;
+        }
 
         try {
             const res = await axiosInstance.post(`/messages/send/${selectedUser._id}`, messageData);

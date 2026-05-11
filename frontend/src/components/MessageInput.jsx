@@ -2,13 +2,15 @@ import { useRef, useState } from "react";
 import { useChatStore } from "../store/useChatStore";
 import { useAuthStore } from "../store/useAuthStore";
 import toast from "react-hot-toast";
-import { Paperclip, SendIcon, XIcon, Smile } from "lucide-react";
+import { Paperclip, SendIcon, XIcon, Smile, Sparkles } from "lucide-react";
 import EmojiPicker from "emoji-picker-react";
+import AIWritingAssistant from "./AIWritingAssistant";
 
 function MessageInput() {
   const [text, setText] = useState("");
   const [imagePreview, setImagePreview] = useState(null);
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
 
   const fileInputRef = useRef(null);
   const typingTimeoutRef = useRef(null);
@@ -20,7 +22,7 @@ function MessageInput() {
     if (!text.trim() && !imagePreview) return;
 
     if (typingTimeoutRef.current) clearTimeout(typingTimeoutRef.current);
-    if (socket && selectedUser) socket.emit("stopTyping", { receiverId: selectedUser._id });
+    if (socket && selectedUser && !selectedUser.isAI) socket.emit("stopTyping", { receiverId: selectedUser._id });
 
     try {
       await sendMessage({
@@ -31,6 +33,7 @@ function MessageInput() {
       setText("");
       setImagePreview(null);
       setShowEmojiPicker(false);
+      setShowAIAssistant(false);
       if (fileInputRef.current) fileInputRef.current.value = "";
     } catch (error) {
       console.error("Failed to send message:", error);
@@ -55,7 +58,7 @@ function MessageInput() {
   };
 
   const handleTyping = () => {
-    if (!socket || !selectedUser) return;
+    if (!socket || !selectedUser || selectedUser.isAI) return;
     
     socket.emit("typing", { receiverId: selectedUser._id });
     
@@ -73,12 +76,35 @@ function MessageInput() {
     handleTyping();
   };
 
+  const handleOpenAI = () => {
+    if (!text.trim()) {
+      toast("Type a message first, then use AI Assistant ✨", { icon: "💡" });
+      return;
+    }
+    setShowEmojiPicker(false);
+    setShowAIAssistant(true);
+  };
+
+  const handleAIReplace = (newText) => {
+    setText(newText);
+    setShowAIAssistant(false);
+  };
+
   return (
-    <div className="px-4 py-3 border-t border-cyan-500/8 glass-panel-strong relative">
+    <div className="px-4 py-3 relative" style={{ background: "var(--bg-panel)", borderTop: "1px solid var(--border-subtle)" }}>
+
+      {/* AI Writing Assistant Panel */}
+      {showAIAssistant && (
+        <AIWritingAssistant
+          inputText={text}
+          onClose={() => setShowAIAssistant(false)}
+          onReplace={handleAIReplace}
+        />
+      )}
 
       {/* Emoji picker overlay */}
       {showEmojiPicker && (
-        <div className="absolute bottom-20 left-4 z-40 shadow-2xl rounded-2xl overflow-hidden border border-cyan-500/10">
+        <div className="absolute bottom-20 left-4 z-40 shadow-2xl rounded-2xl overflow-hidden border border-white/10">
           <EmojiPicker
             theme="dark"
             onEmojiClick={handleEmojiClick}
@@ -107,8 +133,53 @@ function MessageInput() {
       )}
 
       {/* Input bar */}
-      <form onSubmit={handleSendMessage} className="w-full flex items-center gap-2">
-        <div className="flex-1 flex items-center gap-2 bg-navy-800/80 border border-cyan-500/10 rounded-full px-4 py-2 focus-within:border-cyan-500/25 focus-within:ring-1 focus-within:ring-cyan-500/10 transition-all">
+      <form onSubmit={handleSendMessage} className="w-full flex items-center gap-3">
+        
+        {/* Left Icons: Emoji & Attachment */}
+        <div className="flex items-center gap-2 shrink-0">
+          <button
+            type="button"
+            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+            className={`p-2 rounded-full transition-all ${
+              showEmojiPicker ? "text-[#00a884] bg-[#2a3942]" : "text-[#8696a0] hover:text-[#aebac1]"
+            }`}
+          >
+            <Smile className="w-6 h-6" />
+          </button>
+
+          {!selectedUser?.isAI && (
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              className={`p-2 rounded-full transition-all ${
+                imagePreview ? "text-[#00a884] bg-[#2a3942]" : "text-[#8696a0] hover:text-[#aebac1]"
+              }`}
+            >
+              <Paperclip className="w-5 h-5" />
+            </button>
+          )}
+
+          {/* AI Assistant trigger button */}
+          {!selectedUser?.isAI && (
+            <button
+              type="button"
+              id="ai-assistant-trigger"
+              onClick={handleOpenAI}
+              disabled={!text.trim()}
+              className="ai-trigger-btn shrink-0 ml-1"
+              title="AI Writing Assistant"
+            >
+              <Sparkles className="w-3.5 h-3.5 shrink-0" />
+              <span>AI</span>
+            </button>
+          )}
+        </div>
+
+        <div className="flex-1 rounded-2xl px-4 py-2.5 transition-all"
+          style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-soft)" }}
+          onFocus={e => e.currentTarget.style.borderColor = "rgba(124,58,237,0.35)"}
+          onBlur={e => e.currentTarget.style.borderColor = "var(--border-soft)"}
+        >
           <input
             type="text"
             value={text}
@@ -116,8 +187,10 @@ function MessageInput() {
               setText(e.target.value);
               handleTyping();
             }}
-            className="flex-1 min-w-0 bg-transparent text-sm text-slate-200 placeholder-slate-500 focus:outline-none"
-            placeholder="Type your secure message..."
+            className="w-full bg-transparent text-[15px] focus:outline-none"
+            style={{ color: "var(--text-primary)" }}
+            placeholder="Type a message..."
+            // placeholder color via CSS variable fallback
           />
 
           <input
@@ -127,41 +200,17 @@ function MessageInput() {
             onChange={handleImageChange}
             className="hidden"
           />
-
-          {/* Attachment button */}
-          <button
-            type="button"
-            onClick={() => fileInputRef.current?.click()}
-            className={`p-1.5 rounded-full transition-all ${
-              imagePreview
-                ? "text-cyan-400 bg-cyan-500/10"
-                : "text-slate-500 hover:text-slate-300 hover:bg-slate-700/50"
-            }`}
-          >
-            <Paperclip className="w-4.5 h-4.5" />
-          </button>
-
-          {/* Emoji button */}
-          <button
-            type="button"
-            onClick={() => setShowEmojiPicker(!showEmojiPicker)}
-            className={`hidden sm:flex p-1.5 rounded-full transition-all ${
-              showEmojiPicker
-                ? "text-cyan-400 bg-cyan-500/10"
-                : "text-slate-500 hover:text-slate-300 hover:bg-slate-700/50"
-            }`}
-          >
-            <Smile className="w-4.5 h-4.5" />
-          </button>
         </div>
 
         {/* Send button */}
         <button
           type="submit"
           disabled={!text.trim() && !imagePreview}
-          className="w-10 h-10 rounded-full bg-gradient-to-r from-cyan-500 to-teal-500 text-white flex items-center justify-center hover:from-cyan-400 hover:to-teal-400 transition-all disabled:opacity-30 disabled:cursor-not-allowed shadow-lg shadow-cyan-500/20 shrink-0"
-        >
-          <SendIcon className="w-4.5 h-4.5" />
+          className="w-10 h-10 rounded-full text-white flex items-center justify-center transition-all disabled:opacity-30 disabled:cursor-not-allowed shrink-0"
+          style={{ background: "linear-gradient(135deg,#7c3aed,#6366f1)", boxShadow: "0 4px 16px rgba(124,58,237,0.35)" }}
+          onMouseEnter={e => !e.currentTarget.disabled && (e.currentTarget.style.background = "linear-gradient(135deg,#a78bfa,#7c3aed)")}
+          onMouseLeave={e => (e.currentTarget.style.background = "linear-gradient(135deg,#7c3aed,#6366f1)")}        >
+          <SendIcon className="w-4 h-4" />
         </button>
       </form>
     </div>

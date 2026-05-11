@@ -1,4 +1,4 @@
-import dotenv from 'dotenv/config';
+import 'dotenv/config';
 
 export const ENV = {
     PORT: process.env.PORT,
@@ -12,5 +12,6 @@ export const ENV = {
     ARCJET_ENV: process.env.ARCJET_ENV,
     RESEND_API_KEY: process.env.RESEND_API_KEY,
     EMAIL_FROM: process.env.EMAIL_FROM,
-    EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME
+    EMAIL_FROM_NAME: process.env.EMAIL_FROM_NAME,
+    GEMINI_API_KEY: process.env.GEMINI_API_KEY
 };

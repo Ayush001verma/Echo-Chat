@@ -33,8 +33,7 @@ function ChatContainer() {
         <ChatHeader />
 
         {/* Message area */}
-        <div className="flex-1 overflow-y-auto p-4" style={{ backgroundImage: "url('/bg.webp')", backgroundSize: "cover", backgroundRepeat: "no-repeat", backgroundPosition: "center" }}>
-          {/* Subtle pattern background */}
+        <div className="flex-1 overflow-y-auto p-4 wa-chat-bg">
           <div className="relative">
             {messages.length > 0 && !isMessagesLoading ? (
               <div className="w-full space-y-4">
@@ -53,14 +52,14 @@ function ChatContainer() {
 
         {/* Typing indicator */}
         {typingUsers.includes(selectedUser?._id) && (
-          <div className="px-5 py-1.5 border-t border-cyan-500/5">
+          <div className="px-5 py-2" style={{ background: "var(--bg-panel)", borderTop: "1px solid var(--border-subtle)" }}>
             <div className="flex items-center gap-2">
               <div className="typing-dots">
                 <span></span>
                 <span></span>
                 <span></span>
               </div>
-              <span className="text-xs text-slate-500">Typing...</span>
+              <span className="text-xs italic" style={{ color: "var(--text-muted)" }}>typing...</span>
             </div>
           </div>
         )}

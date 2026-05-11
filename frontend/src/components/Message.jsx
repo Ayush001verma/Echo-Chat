@@ -38,7 +38,8 @@ const Message = ({ message }) => {
     if (message.isSystemMessage) {
         return (
             <div className="flex justify-center my-6 w-full">
-                <div className="bg-navy-700/50 text-slate-400 px-4 py-1.5 rounded-full text-[11px] font-medium border border-cyan-500/10 tracking-wide uppercase italic">
+                <div className="px-4 py-1.5 rounded-full text-[11px] font-medium tracking-wide uppercase italic"
+                  style={{ background: "rgba(124,58,237,0.07)", border: "1px solid rgba(124,58,237,0.12)", color: "var(--text-muted)" }}>
                     {message.text}
                 </div>
             </div>
@@ -91,7 +92,7 @@ const Message = ({ message }) => {
                 <div className="flex flex-col">
                     {/* Sender name (group chats, other users) */}
                     {selectedUser?.members && !isOwnMessage && (
-                        <span className="text-[11px] text-cyan-400 font-medium mb-1 ml-1">{senderName}</span>
+                        <span className="text-[11px] font-medium mb-1 ml-1" style={{ color: "#a78bfa" }}>{senderName}</span>
                     )}
 
                     {/* Bubble */}
@@ -111,14 +112,15 @@ const Message = ({ message }) => {
 
                         {/* Text */}
                         {message.text && (
-                            <p className="text-[13.5px] leading-relaxed text-slate-100 break-words">
+                            <p className="text-[14.5px] leading-relaxed break-words">
                                 {isExpanded || !isLongMessage
                                     ? message.text
                                     : `${message.text.slice(0, MAX_LENGTH)}...`}
                                 {isLongMessage && (
                                     <button
                                         onClick={() => setIsExpanded(!isExpanded)}
-                                        className="font-semibold cursor-pointer ml-1 text-xs text-cyan-400 hover:text-cyan-300"
+                                        className="font-semibold cursor-pointer ml-1 text-xs hover:underline"
+                                        style={{ color: "#a78bfa" }}
                                     >
                                         {isExpanded ? "Read less" : "Read more"}
                                     </button>
@@ -127,30 +129,32 @@ const Message = ({ message }) => {
                         )}
 
                         {/* Timestamp */}
-                        <p className={`text-[10px] mt-1.5 block text-right ${
-                            isOwnMessage ? "text-cyan-300/50" : "text-slate-500"
+                        <p className={`text-[10px] mt-1 block text-right ${
+                            isOwnMessage ? "text-[#e9edef]/70" : "text-[#8696a0]"
                         }`}>
                             {timeString}
                         </p>
 
                         {/* Delete menu (own messages) */}
                         {isOwnMessage && (
-                            <div className="absolute -top-1 -right-1" ref={menuRef}>
+                            <div className="absolute -top-2 -right-2" ref={menuRef}>
                                 <button
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
-                                    className={`p-1 rounded-full bg-navy-700/80 hover:bg-navy-600 transition-all ${
+                                    className={`p-1 rounded-full shadow-sm transition-all ${
                                         isMenuOpen ? "opacity-100" : "opacity-0 group-hover:opacity-100"
-                                    } text-slate-300 border border-cyan-500/10`}
+                                    }`}
+                                    style={{ background: "var(--bg-elevated)", color: "var(--text-muted)" }}
                                     title="Message options"
                                 >
-                                    <MoreVertical size={13} />
+                                    <MoreVertical size={14} />
                                 </button>
 
                                 {isMenuOpen && (
-                                    <div className="absolute right-0 mt-1 w-32 glass-panel-strong rounded-xl shadow-2xl z-50 overflow-hidden border border-cyan-500/10">
+                                    <div className="absolute right-0 mt-1 w-32 rounded-xl shadow-xl z-50 overflow-hidden"
+                                      style={{ background: "var(--bg-elevated)", border: "1px solid var(--border-soft)" }}>
                                         <button
                                             onClick={handleDelete}
-                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 hover:bg-red-500/10 transition-colors"
+                                            className="w-full flex items-center gap-2 px-3 py-2.5 text-sm text-red-400 transition-colors hover:bg-red-500/10"
                                         >
                                             <Trash2 size={14} />
                                             Delete
